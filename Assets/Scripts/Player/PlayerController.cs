@@ -4,10 +4,20 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    [Header("Options")]
+    [SerializeField] private bool allowSprinting = true;
+    [SerializeField] private bool allowJumping = true;
+
     public bool CanMove { get; private set; } = true;
+    public bool IsMoving => Input.GetAxis("Vertical") != 0.0f || Input.GetAxis("Horizontal") != 0.0f;
+    public bool IsSprinting => allowSprinting && Input.GetKey(sprintKey);
+    public bool ShouldJump => Input.GetKeyDown(jumpKey) && playerController.isGrounded;
+
+    private IPlayerState playerState;
 
     // Movement
-    private float walkSpeed = 3.0f;
+    private float movementSpeed = 3.0f;
+    private float jumpForce = 4.5f;
     private float gravity = -9.81f;
     private Vector3 movementVector = Vector3.zero;
     private Vector2 movementInput = Vector2.zero;
@@ -18,6 +28,10 @@ public class PlayerController : MonoBehaviour
     private float maxLookUp = -60.0f;
     private float maxLookDown = 80.0f;
     private float verticalRotation = 0.0f;
+
+    // Key Bindings
+    private KeyCode sprintKey = KeyCode.LeftShift;
+    private KeyCode jumpKey = KeyCode.Space;
 
     private CharacterController playerController = null;
     private Transform playerHead = null;
@@ -30,6 +44,7 @@ public class PlayerController : MonoBehaviour
         playerHead = transform.GetChild(0);
         playerCamera = playerHead.GetComponentInChildren<Camera>();
 
+        SetPlayerState(new IdleState(this));
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
@@ -39,16 +54,35 @@ public class PlayerController : MonoBehaviour
     {
         if (CanMove)
         {
+            playerState.UpdateState();
+
             ProcessMovement();
             ProcessRotation();
+
+            if (allowJumping)
+            {
+                ProcessJump();
+            }
 
             MovePlayer();
         }
     }
 
+    public void SetPlayerState(IPlayerState state)
+    {
+        playerState = state;
+        playerState.EnterState();
+    }
+
+
+    public void SetMovementSpeed(float speed)
+    {
+        movementSpeed = speed;
+    }
+
     private void ProcessMovement()
     {
-        movementInput = new Vector2(walkSpeed * Input.GetAxis("Vertical"), walkSpeed * Input.GetAxis("Horizontal"));
+        movementInput = new Vector2(movementSpeed * Input.GetAxis("Vertical"), movementSpeed * Input.GetAxis("Horizontal"));
 
         float movementVectorY = movementVector.y;
         movementVector = (transform.TransformDirection(Vector3.forward) * movementInput.x) + (transform.TransformDirection(Vector3.right) * movementInput.y);
@@ -62,6 +96,14 @@ public class PlayerController : MonoBehaviour
         playerHead.transform.localRotation = Quaternion.Euler(verticalRotation, 0.0f, 0.0f);
 
         transform.rotation *= Quaternion.Euler(0.0f, Input.GetAxis("Mouse X") * mouseSensitivityX, 0.0f);
+    }
+
+    private void ProcessJump()
+    {
+        if (ShouldJump)
+        {
+            movementVector.y = jumpForce;
+        }
     }
 
     private void MovePlayer()
