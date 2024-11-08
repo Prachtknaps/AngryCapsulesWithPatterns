@@ -11,19 +11,11 @@ public class SprintingState : IPlayerState
 
     public void EnterState()
     {
-        Debug.Log("Entering Sprinting State");
         player.SetMovementSpeed(4.5f);
     }
 
     public void UpdateState()
     {
-        if (!player.IsMoving)
-        {
-            player.SetPlayerState(new IdleState(player));
-        }
-        else if (!player.IsSprinting)
-        {
-            player.SetPlayerState(new WalkingState(player));
-        }
+        player.CheckForStateChange();
     }
 }

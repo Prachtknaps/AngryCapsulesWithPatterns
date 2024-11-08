@@ -9,15 +9,16 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool allowJumping = true;
 
     public bool CanMove { get; private set; } = true;
+    public Vector3 MovementVector { get => movementVector; set => movementVector = value; }
     public bool IsMoving => Input.GetAxis("Vertical") != 0.0f || Input.GetAxis("Horizontal") != 0.0f;
+    public bool IsGrounded => playerController.isGrounded;
     public bool IsSprinting => allowSprinting && Input.GetKey(sprintKey);
-    public bool ShouldJump => Input.GetKeyDown(jumpKey) && playerController.isGrounded;
+    public bool ShouldJump => Input.GetKeyDown(jumpKey) && IsGrounded;
 
     private IPlayerState playerState;
 
     // Movement
-    private float movementSpeed = 3.0f;
-    private float jumpForce = 4.5f;
+    private float movementSpeed = 0.0f;
     private float gravity = -9.81f;
     private Vector3 movementVector = Vector3.zero;
     private Vector2 movementInput = Vector2.zero;
@@ -37,7 +38,6 @@ public class PlayerController : MonoBehaviour
     private Transform playerHead = null;
     private Camera playerCamera = null;
 
-    
     void Awake()
     {
         playerController = GetComponent<CharacterController>();
@@ -49,7 +49,6 @@ public class PlayerController : MonoBehaviour
         Cursor.visible = false;
     }
 
-    // Update is called once per frame
     void Update()
     {
         if (CanMove)
@@ -72,6 +71,26 @@ public class PlayerController : MonoBehaviour
     {
         playerState = state;
         playerState.EnterState();
+    }
+
+    public void CheckForStateChange()
+    {
+        if (ShouldJump)
+        {
+            SetPlayerState(new JumpingState(this));
+        }
+        else if (IsSprinting && IsMoving)
+        {
+            SetPlayerState(new SprintingState(this));
+        }
+        else if (IsMoving)
+        {
+            SetPlayerState(new WalkingState(this));
+        }
+        else
+        {
+            SetPlayerState(new IdleState(this));
+        }
     }
 
 
@@ -102,13 +121,13 @@ public class PlayerController : MonoBehaviour
     {
         if (ShouldJump)
         {
-            movementVector.y = jumpForce;
+            SetPlayerState(new JumpingState(this));
         }
     }
 
     private void MovePlayer()
     {
-        if (!playerController.isGrounded)
+        if (!IsGrounded)
         {
             movementVector.y += gravity * Time.deltaTime;
         }
