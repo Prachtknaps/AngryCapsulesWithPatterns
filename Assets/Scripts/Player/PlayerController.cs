@@ -38,6 +38,8 @@ public class PlayerController : MonoBehaviour
     private Transform playerHead = null;
     private Camera playerCamera = null;
 
+    private IWeapon weapon = null;
+
     void Awake()
     {
         playerController = GetComponent<CharacterController>();
@@ -62,6 +64,8 @@ public class PlayerController : MonoBehaviour
             {
                 ProcessJump();
             }
+
+            ProcessShooting();
 
             MovePlayer();
         }
@@ -91,6 +95,11 @@ public class PlayerController : MonoBehaviour
         {
             SetPlayerState(new IdleState(this));
         }
+    }
+
+    public void SetWeapon(IWeapon weapon)
+    {
+        this.weapon = weapon;
     }
 
 
@@ -133,5 +142,16 @@ public class PlayerController : MonoBehaviour
         }
 
         playerController.Move(movementVector * Time.deltaTime);
+    }
+
+    private void ProcessShooting()
+    {
+        if (weapon != null)
+        {
+            if (Input.GetKeyDown(KeyCode.Mouse0))
+            {
+                weapon.Use();
+            }
+        }
     }
 }
