@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -7,6 +5,10 @@ public class PlayerController : MonoBehaviour
     [Header("Options")]
     [SerializeField] private bool allowSprinting = true;
     [SerializeField] private bool allowJumping = true;
+
+    [Header("Audio")]
+    [SerializeField] private AudioClip collectItemSound = null;
+    private AudioSource audioSource = null;
 
     public bool CanMove { get; private set; } = true;
     public Vector3 MovementVector { get => movementVector; set => movementVector = value; }
@@ -45,15 +47,14 @@ public class PlayerController : MonoBehaviour
         playerController = GetComponent<CharacterController>();
         playerHead = transform.GetChild(0);
         playerCamera = playerHead.GetComponentInChildren<Camera>();
+        audioSource = GetComponent<AudioSource>();
 
         SetPlayerState(new IdleState(this));
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
     }
 
     void Update()
     {
-        if (CanMove)
+        if (CanMove && GameManager.Instance.GetState() == GameState.RUNNING)
         {
             playerState.UpdateState();
 
@@ -99,6 +100,8 @@ public class PlayerController : MonoBehaviour
 
     public void SetWeapon(IWeapon weapon)
     {
+        audioSource.clip = collectItemSound;
+        audioSource.Play();
         this.weapon = weapon;
     }
 
@@ -148,9 +151,14 @@ public class PlayerController : MonoBehaviour
     {
         if (weapon != null)
         {
-            if (Input.GetKeyDown(KeyCode.Mouse0))
+            if (Input.GetKeyDown(KeyCode.Mouse0) && weapon.ShootStrategy is BalloonShotStrategy)
             {
-                weapon.Use();
+                weapon.Shoot();
+            }
+
+            if (Input.GetKey(KeyCode.Mouse0) && weapon.ShootStrategy is ContinuousShotStrategy)
+            {
+                weapon.Shoot();
             }
         }
     }
