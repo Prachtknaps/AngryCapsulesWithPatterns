@@ -1,18 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BalloonGunFactory : IWeaponFactory
 {
-    private readonly GameObject _balloonGunPrefab;
+    private readonly GameObject balloonGunPrefab;
 
     public BalloonGunFactory(GameObject balloonGunPrefab)
     {
-        _balloonGunPrefab = balloonGunPrefab;
+        this.balloonGunPrefab = balloonGunPrefab;
     }
 
     public GameObject Create(Vector3 position, Quaternion rotation)
     {
-        return Object.Instantiate(_balloonGunPrefab, position, rotation);
+        return Object.Instantiate(balloonGunPrefab, position, rotation);
     }
 }

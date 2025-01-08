@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class BalloonGun : MonoBehaviour, IWeapon
 {
-    public string WeaponName => "Balloon Gun";
     public IShootStrategy ShootStrategy { get; set; }
     [SerializeField] private GameObject balloonSpawnPoint;
     [SerializeField] private GameObject balloon;

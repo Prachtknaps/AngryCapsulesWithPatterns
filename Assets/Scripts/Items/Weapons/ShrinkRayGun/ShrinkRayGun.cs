@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class ShrinkRayGun : MonoBehaviour, IWeapon
 {
-    public string WeaponName => "Shrink Ray Gun";
     public IShootStrategy ShootStrategy { get; set; }
 
     private void Awake()
