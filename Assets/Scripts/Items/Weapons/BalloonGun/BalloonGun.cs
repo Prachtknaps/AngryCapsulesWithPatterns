@@ -26,7 +26,7 @@ public class BalloonGun : MonoBehaviour, IWeapon
             if (enemy != null)
             {
                 enemy.ApplyDamage(20.0f);
-                GameManager.Instance.GetScoreManager().AddPoints(20);
+                GameManager.GetScoreManager().AddPoints(20);
             }
         }
     }

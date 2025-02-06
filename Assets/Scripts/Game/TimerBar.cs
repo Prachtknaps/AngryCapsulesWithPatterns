@@ -12,8 +12,8 @@ public class TimerBar : MonoBehaviour, Observer
 
     public void UpdateObserver()
     {
-        float time = GameManager.Instance.GetTimer().GetTime();
-        float totalTime = GameManager.Instance.GetTimer().GetTotalTime();
+        float time = GameManager.GetTimer().GetTime();
+        float totalTime = GameManager.GetTimer().GetTotalTime();
         timerBar.fillAmount = time / totalTime;
     }
 }

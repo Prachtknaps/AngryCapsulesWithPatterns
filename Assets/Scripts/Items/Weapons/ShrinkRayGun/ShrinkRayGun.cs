@@ -25,7 +25,7 @@ public class ShrinkRayGun : MonoBehaviour, IWeapon
             {
                 enemy.ApplyDamage(10.0f);
                 enemy.transform.localScale = enemy.transform.localScale * 0.95f;
-                GameManager.Instance.GetScoreManager().AddPoints(10);
+                GameManager.GetScoreManager().AddPoints(10);
             }
         }
     }

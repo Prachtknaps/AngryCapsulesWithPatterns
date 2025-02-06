@@ -12,7 +12,7 @@ public class TimerText : MonoBehaviour, Observer
 
     public void UpdateObserver()
     {
-        float time = GameManager.Instance.GetTimer().GetTime();
+        float time = GameManager.GetTimer().GetTime();
         timerText.text = "Time Remaining: " + time + "s";
     }
 }

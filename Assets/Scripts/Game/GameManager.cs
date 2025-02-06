@@ -4,7 +4,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
-    private GameState state = GameState.MAIN_MENU;
+    private IGameState state = null;
     private ScoreManager scoreManager = null;
     private Timer timer = null;
     private float timeDelta = 0.0f;
@@ -39,7 +39,7 @@ public class GameManager : MonoBehaviour
         }
 
         Instance = this;
-        SetState(GameState.MAIN_MENU);
+        SetState(new MainMenuState());
         scoreManager = new ScoreManager();
         scoreManager.Attach(scoreText);
         timer = new Timer(60.0f);
@@ -50,7 +50,7 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        if (state == GameState.RUNNING)
+        if (state is RunningState)
         {
             timeDelta += Time.deltaTime;
             if (timeDelta >= 1.0f)
@@ -62,112 +62,86 @@ public class GameManager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (state == GameState.PAUSE_MENU)
+            if (state is PauseMenuState)
             {
-                SetState(GameState.RUNNING);
+                SetState(new RunningState());
             }
-            else if (state == GameState.RUNNING)
+            else if (state is RunningState)
             {
-                SetState(GameState.PAUSE_MENU);
+                SetState(new PauseMenuState());
             }
         }
     }
 
-    public GameState GetState()
+    public IGameState GetState()
     {
         return state;
     }
 
-    public void SetState(GameState state)
+    public static ScoreManager GetScoreManager()
     {
-        this.state = state;
-
-        if (state == GameState.MAIN_MENU)
-        {
-            mainMenu.SetActive(true);
-            pauseMenu.SetActive(false);
-            gameGUI.SetActive(false);
-            gameOverMenu.SetActive(false);
-            Time.timeScale = 0.0f;
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
-        else if (state == GameState.PAUSE_MENU)
-        {
-            mainMenu.SetActive(false);
-            pauseMenu.SetActive(true);
-            gameOverMenu.SetActive(false);
-            Time.timeScale = 0.0f;
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-        }
-        else if (state == GameState.RUNNING)
-        { 
-            mainMenu.SetActive(false);
-            pauseMenu.SetActive(false);
-            gameGUI.SetActive(true);
-            gameOverMenu.SetActive(false);
-            Time.timeScale = 1.0f;
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-        }
-        else
-        {
-            mainMenu.SetActive(false);
-            pauseMenu.SetActive(false);
-            gameGUI.SetActive(false);
-            gameOverMenu.SetActive(true);
-            Time.timeScale = 0.0f;
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
-            BuildGameOverScreen();
-        }
+        return Instance?.scoreManager;
     }
 
-    public ScoreManager GetScoreManager()
+    public static Timer GetTimer()
     {
-        return scoreManager;
+        return Instance?.timer;
     }
 
-    public Timer GetTimer()
+    public static GameObject GetMainMenu()
     {
-        return timer;
+        return Instance?.mainMenu;
+    }
+
+    public static GameObject GetPauseMenu()
+    {
+        return Instance?.pauseMenu;
+    }
+
+    public static GameObject GetGameGUI()
+    {
+        return Instance?.gameGUI;
+    }
+
+    public static GameObject GetGameOverMenu()
+    {
+        return Instance?.gameOverMenu;
+    }
+
+    public static TextMeshProUGUI GetHighScoreText()
+    {
+        return Instance?.highScoreText;
+    }
+
+    public static TextMeshProUGUI GetNewHighScoreText()
+    {
+        return Instance?.newHighScoreText;
+    }
+
+    public static TextMeshProUGUI GetGameScoreText()
+    {
+        return Instance?.gameScoreText;
+    }
+
+    public void SetState(IGameState newState)
+    {
+        state = newState;
+        state.Enter();
     }
 
     public void StartGame()
     {
-        SetState(GameState.RUNNING);
+        SetState(new RunningState());
         weaponSpawner.SpawnWeapons();
     }
 
     public void ResumeGame()
     {
-        SetState(GameState.RUNNING);
+        SetState(new RunningState());
     }
 
-    public void QuitGame()
+    public static void QuitGame()
     {
         Application.Quit();
-    }
-
-    private void BuildGameOverScreen()
-    {
-        int score = scoreManager.GetScore();
-        
-        if (!PlayerPrefs.HasKey("Highscore"))
-        {
-            PlayerPrefs.SetInt("Highscore", score);
-        }
-
-        int highscore = PlayerPrefs.GetInt("Highscore");
-        
-        if (score > highscore)
-        {
-            PlayerPrefs.SetInt("Highscore", score);
-        }
-        
-        highScoreText.text = "Highscore: " + highscore;
-        newHighScoreText.text = (score >= highscore) ? "Score: " + score : "";
-        gameScoreText.text = (score >= highscore) ? "" : "Score: " + score;
     }
 }

@@ -41,7 +41,7 @@ public class Timer : Observable
         Notify();
         if (timeRemaining == -1)
         {
-            GameManager.Instance.SetState(GameState.GAME_OVER);
+            GameManager.Instance.SetState(new GameOverState());
         }
     }
 

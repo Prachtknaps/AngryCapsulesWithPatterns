@@ -54,7 +54,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        if (CanMove && GameManager.Instance.GetState() == GameState.RUNNING)
+        if (CanMove && GameManager.Instance.GetState() is RunningState)
         {
             playerState.UpdateState();
 
