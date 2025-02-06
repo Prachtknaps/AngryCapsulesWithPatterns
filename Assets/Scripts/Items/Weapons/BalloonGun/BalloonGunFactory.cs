@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class BalloonGunFactory : IWeaponFactory
 {
-    private readonly GameObject balloonGunPrefab;
+    private readonly GameObject balloonGunPrefab = null;
 
     public BalloonGunFactory(GameObject balloonGunPrefab)
     {

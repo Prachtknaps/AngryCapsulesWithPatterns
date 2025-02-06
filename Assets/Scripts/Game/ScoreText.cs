@@ -12,6 +12,7 @@ public class ScoreText : MonoBehaviour, Observer
 
     public void UpdateObserver()
     {
-        scoreText.text = "Score: " + GameManager.Instance.GetScoreManager().GetScore();
+        int score = GameManager.Instance.GetScoreManager().GetScore();
+        scoreText.text = "Score: " + score;
     }
 }
