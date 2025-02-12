@@ -73,9 +73,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public IGameState GetState()
+    public static IGameState GetState()
     {
-        return state;
+        return Instance?.state;
     }
 
     public static ScoreManager GetScoreManager()
